@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Taqdeer App</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4D7A50" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    .screen-content {
+  overflow-y: auto;
+}
+.phone-frame {
+  overflow: visible;
+}
+
+    :root {
+      --forest-green: #4D7A50;
+      --cream: #F5ECD7;
+      --dark-green: #3A5A3C;
+      --light-cream: #FDF6E9;
+      --medium-gray: #6C757D;
+      --dark-gray: #343A40;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      background-color: var(--light-cream);
+      color: var(--dark-gray);
+    }
+    .container {
+      max-width: 1200px; margin: 0 auto; padding: 20px;
+    }
+    header {
+      background-color: var(--forest-green);
+      color: var(--cream);
+      padding: 20px 0;
+      text-align: center;
+    }
+    .logo { font-size: 32px; font-weight: bold; margin-bottom: 10px; }
+    .tagline { font-size: 18px; opacity: 0.9; }
+    .mockup-section { margin: 40px 0; }
+    h2 {
+      color: var(--forest-green);
+      border-bottom: 2px solid var(--forest-green);
+      padding-bottom: 10px; margin-bottom: 30px;
+    }
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+      gap: 30px;
+    }
+    .mockup-card {
+      background: white;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      transition:transform 0.3s ease;
+    }
+    .mockup-card:hover { transform: translateY(-5px); }
+    .mockup-image {
+      width:100%; height:500px;
+      background: var(--light-cream);
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+    }
+    .phone-frame {
+      width:270px; height:480px;
+      background:white; border-radius:30px;
+      border:10px solid var(--dark-gray);
+      position:relative; overflow:hidden;
+    }
+    .status-bar {
+      height:20px; background:var(--dark-gray); width:100%;
+    }
+    .screen-content {
+      padding:10px;
+      height:calc(100% - 20px);
+      display:flex; flex-direction:column;
+    }
+    .mockup-info { padding:15px; }
+    .mockup-title { font-weight:bold; margin-bottom:5px; }
+    .mockup-description {
+      color: var(--medium-gray);
+      font-size:14px;
+    }
+
+    /* --- WORKER APP STYLES --- */
+    .worker-app .header {
+      background: var(--forest-green);
+      color: var(--cream);
+      padding:15px;
+      text-align:center;
+      font-weight:bold;
+    }
+    .worker-app .qr-container {
+      background:white; margin:20px; padding:15px;
+      border-radius:10px;
+      display:flex; flex-direction:column; align-items:center;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+    .worker-app .qr-code {
+      width:180px; height:180px;
+      background: var(--light-cream);
+      margin:10px 0;
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+    }
+    .worker-app .stats-container {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin:10px 20px;
+    }
+    .worker-app .stat-card {
+      background:white; padding:15px;
+      border-radius:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+    .worker-app .stat-label {
+      font-size:12px; color:var(--medium-gray);
+    }
+    .worker-app .stat-value {
+      font-size:18px; font-weight:bold;
+      color:var(--forest-green);
+      margin-top:5px;
+    }
+    .worker-app .bottom-nav {
+      margin-top:auto;
+      display:grid; grid-template-columns:repeat(4,1fr);
+      background:white; padding:10px 0;
+      border-top:1px solid var(--light-cream);
+    }
+    .worker-app .nav-item {
+      display:flex; flex-direction:column;
+      align-items:center; font-size:10px;
+      color:var(--medium-gray); cursor:pointer;
+    }
+    .worker-app .nav-item.active {
+      color:var(--forest-green);
+    }
+
+    .worker-app .home-icon {
+      width:24px; height:24px;
+      background: currentColor;
+      mask-size:cover; -webkit-mask-size:cover;
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/%3E%3C/svg%3E");
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/%3E%3C/svg%3E");
+    }
+    .worker-app .history-icon {
+      width:24px; height:24px; background:currentColor;
+      mask-size:cover; -webkit-mask-size:cover;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z'/%3E%3C/svg%3E");
+    }
+    .worker-app .wallet-icon {
+      width:24px; height:24px; background:currentColor;
+      mask-size:cover; -webkit-mask-size:cover;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/%3E%3C/svg%3E");
+    }
+    .worker-app .profile-icon {
+      width:24px; height:24px; background:currentColor;
+      mask-size:cover; -webkit-mask-size:cover;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E");
+    }
+
+    /* --- CUSTOMER APP STYLES --- */
+    .customer-app .header {
+      display:flex; align-items:center;
+      padding:15px; background:white;
+    }
+    .customer-app .back-button {
+      width:24px; height:24px; background:var(--dark-gray);
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z'/%3E%3C/svg%3E");
+      mask-size:cover; -webkit-mask-size:cover;
+      cursor:pointer;
+    }
+    .customer-app .header-title {
+      flex-grow:1; text-align:center;
+      font-weight:bold;
+    }
+    .customer-app .worker-profile {
+      display:flex; flex-direction:column;
+      align-items:center; padding:20px;
+    }
+    .customer-app .worker-avatar {
+      width:80px; height:80px; border-radius:50%;
+      background:var(--forest-green); color:var(--cream);
+      margin-bottom:10px; display:flex;
+      align-items:center; justify-content:center;
+      font-size:30px;
+    }
+    .customer-app .worker-name { font-weight:bold; margin-bottom:5px; }
+    .customer-app .worker-role {
+      color:var(--medium-gray); font-size:14px;
+    }
+    .customer-app .tip-amount-section { padding:20px; }
+    .customer-app .section-title { font-weight:bold; margin-bottom:15px; }
+    .customer-app .amount-buttons {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:10px; margin-bottom:15px;
+    }
+    .customer-app .amount-button {
+      background:var(--light-cream); border-radius:8px;
+      padding:12px 0; text-align:center;
+      font-weight:bold; cursor:pointer;
+    }
+    .customer-app .amount-button.selected {
+      background:var(--forest-green); color:var(--cream);
+    }
+    .customer-app .custom-amount {
+      display:flex; align-items:center;
+      background:var(--light-cream); border-radius:8px;
+      padding:0 15px; height:48px;
+      margin-bottom:20px;
+    }
+    .customer-app .currency { color:var(--medium-gray); margin-right:10px; }
+    .customer-app .amount-input {
+      flex-grow:1; border:none; background:transparent;
+      font-size:16px; font-weight:bold;
+    }
+    .customer-app .note-input {
+      background:var(--light-cream); border-radius:8px;
+      padding:15px; margin-bottom:20px;
+      min-height:60px; font-size:14px;
+      width:calc(100% - 30px); border:none; resize:none;
+    }
+    .customer-app .primary-button {
+      background:var(--forest-green); color:var(--cream);
+      border-radius:8px; padding:15px 0;
+      text-align:center; font-weight:bold;
+      margin-top:20px; cursor:pointer;
+    }
+
+    /* --- BUSINESS APP STYLES --- */
+    .business-app .header {
+      background: var(--forest-green);
+      color: var(--cream); padding:15px;
+      text-align:center; font-weight:bold;
+    }
+    .business-app .dashboard-summary {
+      background: var(--forest-green); color: var(--cream);
+      padding:20px;
+    }
+    .business-app .summary-title { font-size:14px; opacity:0.9; }
+    .business-app .summary-amount { font-size:28px; font-weight:bold; margin-bottom:5px; }
+    .business-app .summary-period { font-size:12px; opacity:0.8; }
+    .business-app .quick-stats {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; padding:15px;
+    }
+    .business-app .stat-card {
+      background:white; border-radius:8px;
+      padding:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+    .business-app .stat-label { font-size:12px; color:var(--medium-gray); margin-bottom:5px; }
+    .business-app .stat-value { font-size:18px; font-weight:bold; color:var(--forest-green); }
+    .business-app .staff-section { padding:15px; }
+    .business-app .section-header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:15px;
+    }
+    .business-app .section-title { font-weight:bold; }
+    .business-app .view-all {
+      color:var(--forest-green); font-size:14px; cursor:pointer;
+    }
+    .business-app .staff-list {
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .business-app .staff-card {
+      display:flex; align-items:center; background:white;
+      border-radius:8px; padding:10px 15px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+    .business-app .staff-avatar {
+      width:40px; height:40px; border-radius:50%;
+      background:var(--forest-green); margin-right:15px;
+      display:flex; align-items:center; justify-content:center;
+      color:var(--cream); font-size:16px;
+    }
+    .business-app .staff-info { flex-grow:1; }
+    .business-app .staff-name { font-weight:bold; margin-bottom:3px; }
+    .business-app .staff-role { font-size:12px; color:var(--medium-gray); }
+    .business-app .staff-tips { font-weight:bold; color:var(--dark-green); }
+    .business-app .bottom-nav {
+      margin-top:auto;
+      display:grid; grid-template-columns:repeat(4,1fr);
+      background:white; padding:10px 0;
+      border-top:1px solid var(--light-cream);
+    }
+    .business-app .nav-item {
+      display:flex; flex-direction:column; align-items:center;
+      font-size:10px; color:var(--medium-gray);
+      cursor:pointer;
+    }
+    .business-app .nav-item.active { color:var(--forest-green); }
+
+    .business-app .dashboard-icon {
+      width:24px; height:24px; background:currentColor;
+      mask-size:cover; -webkit-mask-size:cover;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'/%3E%3C/svg%3E");
+    }
+    .business-app .staff-icon {
+      width:24px; height:24px; background:currentColor;
+      mask-size:cover; -webkit-mask-size:cover;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
+    }
+    .business-app .analytics-icon {
+      width:24px; height:24px; background:currentColor;
+      mask-size:cover; -webkit-mask-size:cover;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z'/%3E%3C/svg%3E");
+    }
+    .business-app .settings-icon {
+      width:24px; height:24px; background:currentColor;
+      mask-size:cover; -webkit-mask-size:cover;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'/%3E%3C/svg%3E");
+    }
+
+    /* Confirmation Screen & Fallback QR */
+    .confirmation-screen {
+      height:100%; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:20px; text-align:center;
+      background-color:#F8F9FA;
+    }
+    .success-icon {
+      width:80px; height:80px; border-radius:50%;
+      background-color: var(--forest-green);
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:20px;
+    }
+    .checkmark {
+      width:40px; height:40px;
+      background-color: var(--cream);
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+      mask-size:cover; -webkit-mask-size:cover;
+    }
+    .rating-container {
+      background:white; border-radius:12px;
+      padding:20px; width:100%;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom:30px;
+    }
+    .stars {
+      display:flex; justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .star {
+      width:30px; height:30px; background:#E9ECEF;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/%3E%3C/svg%3E");
+      mask-size:cover; -webkit-mask-size:cover;
+      cursor:pointer;
+    }
+    .star.active { background: var(--forest-green); }
+
+    .fallback-qr {
+      width:180px; height:180px;
+      background: var(--cream);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      position:relative;
+    }
+    .fallback-qr:before {
+      content:""; width:120px; height:120px;
+      background: var(--forest-green);
+      position:absolute;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm0 5h3v3h-3v-3zm-5 0h3v3h-3v-3zm5-10h3v3h-3V8zm0 5h3v3h-3v-3zm-5 0h3v3h-3v-3z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm0 5h3v3h-3v-3zm-5 0h3v3h-3v-3zm5-10h3v3h-3V8zm0 5h3v3h-3v-3zm-5 0h3v3h-3v-3z'/%3E%3C/svg%3E");
+      mask-size:contain; -webkit-mask-size:contain;
+      mask-repeat:no-repeat; -webkit-mask-repeat:no-repeat;
+      mask-position:center; -webkit-mask-position:center;
+    }
+    .fallback-qr:after {
+      content:"T";
+      color:var(--forest-green);
+      font-size:24px; font-weight:bold;
+      position:absolute;
+    }
+
+    .screen { display:none; }
+    .screen.active {
+      display:flex; flex-direction:column;
+      animation:fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from{opacity:0;} to{opacity:1;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">Taqdeer</div>
+      <div class="tagline">Gratitude, Digitized</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="mockup-section">
+      <h2>Service Worker App</h2>
+      <div class="mockup-grid">
+        <div class="mockup-card">
+          <div class="mockup-image">
+            <div class="phone-frame">
+              <div class="status-bar"></div>
+              <div class="screen-content worker-app">
+                <!-- Worker Home -->
+                <div id="worker-home" class="screen active">
+                  <div class="header">Taqdeer</div>
+                  <div class="qr-container">
+                    <div>Your Tipping Code</div>
+                    <div id="qrcode" class="qr-code">
+                      <div id="fallback-qr" class="fallback-qr"></div>
+                    </div>
+                    <!-- explicit IDs for safe JS updating -->
+                    <div id="worker-name">Ahmed Mohamed</div>
+                    <div id="worker-role" style="font-size:12px;color:#6C757D;">
+                      Server at Al Fanar Restaurant
+                    </div>
+                  </div>
+                  <div class="stats-container">
+                    <div class="stat-card">
+                      <div class="stat-label">Today's Tips</div>
+                      <div class="stat-value">AED 120</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-label">This Week</div>
+                      <div class="stat-value">AED 780</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Worker History -->
+                <div id="worker-history" class="screen">
+                  <div class="header">History</div>
+                  <div style="padding:20px;">
+                    <div style="font-weight:bold;margin-bottom:15px;">Recent Tips</div>
+                    <!-- JS-populated entries go here -->
+                  </div>
+                </div>
+                <!-- Worker Wallet -->
+                <div id="worker-wallet" class="screen">
+                  <div class="header">Wallet</div>
+                  <div style="background:#F8F9FA;padding:20px;text-align:center;">
+                    <div style="font-size:14px;color:#6C757D;margin-bottom:5px;">
+                      Available Balance
+                    </div>
+                    <div class="summary-amount" style="font-size:32px;font-weight:bold;color:#4D7A50;margin-bottom:15px;">
+                      AED 1,240
+                    </div>
+                    <div id="transfer-button" style="background-color:#4D7A50;color:#F5ECD7;padding:12px;border-radius:8px;cursor:pointer;">
+                      Transfer to Bank
+                    </div>
+                  </div>
+                </div>
+                <!-- Worker Profile -->
+                <div id="worker-profile" class="screen">
+                  <div class="header">Profile</div>
+                  <div style="padding:20px;">
+                    <div style="display:flex;align-items:center;margin-bottom:20px;">
+                      <div style="width:60px;height:60px;border-radius:50%;background-color:#4D7A50;color:#F5ECD7;display:flex;align-items:center;justify-content:center;font-size:24px;margin-right:15px;">A</div>
+                      <div>
+                        <div style="font-weight:bold;font-size:18px;">Ahmed Mohamed</div>
+                        <div style="color:#6C757D;">Server at Al Fanar Restaurant</div>
+                      </div>
+                    </div>
+                    <div style="background:white;border-radius:8px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                      <div style="font-weight:bold;margin-bottom:10px;">Account Information</div>
+                      <div style="margin-bottom:15px;">
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:3px;">Email</div>
+                        <div>ahmed.mohamed@example.com</div>
+                      </div>
+                      <div style="margin-bottom:15px;">
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:3px;">Phone</div>
+                        <div>+971 50 123 4567</div>
+                      </div>
+                      <div>
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:3px;">Joined</div>
+                        <div>January 15, 2025</div>
+                      </div>
+                    </div>
+                    <div style="background:white;border-radius:8px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                      <div style="font-weight:bold;margin-bottom:10px;">Bank Details</div>
+                      <div style="margin-bottom:15px;">
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:3px;">Bank</div>
+                        <div>Emirates NBD</div>
+                      </div>
+                      <div>
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:3px;">IBAN</div>
+                        <div>AE07 0260 0010 1234 5678 901</div>
+                      </div>
+                    </div>
+                    <div style="background:#F8F9FA;border-radius:8px;padding:15px;text-align:center;color:#6C757D;cursor:pointer;">
+                      Sign Out
+                    </div>
+                  </div>
+                </div>
+                <!-- Worker Bottom Nav -->
+                <div class="bottom-nav">
+                  <div class="nav-item active" onclick="switchScreen('worker-app','worker-home')">
+                    <div class="nav-icon home-icon"></div><div>Home</div>
+                  </div>
+                  <div class="nav-item" onclick="switchScreen('worker-app','worker-history')">
+                    <div class="nav-icon history-icon"></div><div>History</div>
+                  </div>
+                  <div class="nav-item" onclick="switchScreen('worker-app','worker-wallet')">
+                    <div class="nav-icon wallet-icon"></div><div>Wallet</div>
+                  </div>
+                  <div class="nav-item" onclick="switchScreen('worker-app','worker-profile')">
+                    <div class="nav-icon profile-icon"></div><div>Profile</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-info">
+            <div class="mockup-title">Home Screen</div>
+            <div class="mockup-description">
+              Main dashboard for service workers showing their QR code and tip statistics
+            </div>
+          </div>
+        </div>
+
+        <!-- CUSTOMER APP CARD -->
+        <div class="mockup-card">
+          <div class="mockup-image">
+            <div class="phone-frame">
+              <div class="status-bar"></div>
+              <div class="screen-content customer-app">
+                <!-- Tip Amount Screen -->
+                <div id="customer-tip" class="screen active">
+                  <div class="header">
+                    <div class="back-button" onclick="alert('Back to previous screen')"></div>
+                    <div class="header-title">Tip Service</div>
+                    <div style="width:24px;"></div>
+                  </div>
+                  <div class="worker-profile">
+                    <div class="worker-avatar">A</div>
+                    <div class="worker-name">Ahmed Mohamed</div>
+                    <div class="worker-role">Server at Al Fanar Restaurant</div>
+                  </div>
+                  <div class="tip-amount-section">
+                    <div class="section-title">Tip Amount</div>
+                    <div class="amount-buttons">
+                      <div class="amount-button" onclick="selectAmount(5)">5</div>
+                      <div class="amount-button" onclick="selectAmount(10)">10</div>
+                      <div class="amount-button selected" onclick="selectAmount(20)">20</div>
+                      <div class="amount-button" onclick="selectAmount(50)">50</div>
+                    </div>
+                    <div class="custom-amount">
+                      <div class="currency">AED</div>
+                      <input type="number" id="custom-amount-input" class="amount-input" value="20" oninput="updateAmount(this.value)"/>
+                    </div>
+                    <div class="section-title">Add a Note (Optional)</div>
+                    <textarea id="note-input" class="note-input" placeholder="Write a note to the service worker...">Thank you for the excellent service!</textarea>
+                    <div class="primary-button" onclick="proceedToPayment()">Proceed to Payment</div>
+                  </div>
+                </div>
+                <!-- Confirmation Screen -->
+                <div id="customer-confirmation" class="screen">
+                  <div class="confirmation-screen">
+                    <div class="success-icon">
+                      <div class="checkmark"></div>
+                    </div>
+                    <div style="font-size:24px;font-weight:bold;margin-bottom:10px;">
+                      Thank You!
+                    </div>
+                    <div id="tip-confirmation-message" style="color:#6C757D;margin-bottom:30px;">
+                      Your tip of AED 20 has been sent to Ahmed
+                    </div>
+                    <div class="rating-container">
+                      <div style="font-weight:bold;margin-bottom:15px;">Rate Your Experience</div>
+                      <div class="stars">
+                        <div class="star" onclick="rateStar(1)"></div>
+                        <div class="star" onclick="rateStar(2)"></div>
+                        <div class="star" onclick="rateStar(3)"></div>
+                        <div class="star" onclick="rateStar(4)"></div>
+                        <div class="star" onclick="rateStar(5)"></div>
+                      </div>
+                    </div>
+                    <div class="primary-button" onclick="finishRating()">Done</div>
+                  </div>
+                </div>
+                <!-- Customer Bottom Nav not needed -->
+              </div>
+            </div>
+          </div>
+          <div class="mockup-info">
+            <div class="mockup-title">Tipping Screen</div>
+            <div class="mockup-description">
+              Interface for customers to select tip amount and add a personal note
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUSINESS APP SECTION -->
+    <div class="mockup-section">
+      <h2>Business App</h2>
+      <div class="mockup-grid">
+        <div class="mockup-card">
+          <div class="mockup-image">
+            <div class="phone-frame">
+              <div class="status-bar"></div>
+              <div class="screen-content business-app">
+                <!-- Dashboard -->
+                <div id="business-dashboard" class="screen active">
+                  <div class="header">Taqdeer Business</div>
+                  <div class="dashboard-summary">
+                    <div class="summary-title">Total Tips Received</div>
+                    <div class="summary-amount">AED 12,450</div>
+                    <div class="summary-period">This Month</div>
+                  </div>
+                  <div class="quick-stats">
+                    <div class="stat-card">
+                      <div class="stat-label">Average Tip</div>
+                      <div class="stat-value">AED 18.5</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-label">Staff Rating</div>
+                      <div class="stat-value">4.8/5</div>
+                    </div>
+                  </div>
+                  <div class="staff-section">
+                    <div class="section-header">
+                      <div class="section-title">Top Performing Staff</div>
+                      <div class="view-all" onclick="switchScreen('business-app','business-staff')">View All</div>
+                    </div>
+                    <div class="staff-list">
+                      <div class="staff-card">
+                        <div class="staff-avatar">A</div>
+                        <div class="staff-info">
+                          <div class="staff-name">Ahmed Mohamed</div>
+                          <div class="staff-role">Server</div>
+                        </div>
+                        <div class="staff-tips">AED 2,340</div>
+                      </div>
+                      <div class="staff-card">
+                        <div class="staff-avatar">S</div>
+                        <div class="staff-info">
+                          <div class="staff-name">Sara Khan</div>
+                          <div class="staff-role">Hostess</div>
+                        </div>
+                        <div class="staff-tips">AED 1,890</div>
+                      </div>
+                      <div class="staff-card">
+                        <div class="staff-avatar">M</div>
+                        <div class="staff-info">
+                          <div class="staff-name">Michael Thomas</div>
+                          <div class="staff-role">Bartender</div>
+                        </div>
+                        <div class="staff-tips">AED 1,650</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Staff Management -->
+                <div id="business-staff" class="screen">
+                  <div class="header">Staff Management</div>
+                  <div style="padding:15px;">
+                    <div style="background-color:#F8F9FA;border-radius:8px;display:flex;margin-bottom:20px;">
+                      <div style="flex:1;text-align:center;padding:10px;border-bottom:3px solid #4D7A50;font-weight:bold;color:#3A5A3C;">
+                        All Staff
+                      </div>
+                      <div style="flex:1;text-align:center;padding:10px;color:#6C757D;">
+                        Departments
+                      </div>
+                    </div>
+                    <div style="display:flex;background-color:#F8F9FA;border-radius:8px;padding:10px;margin-bottom:20px;align-items:center;">
+                      <div style="width:20px;height:20px;background-color:#6C757D;mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z\'/%3E%3C/svg%3E');-webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z\'/%3E%3C/svg%3E');mask-size:cover;-webkit-mask-size:cover;margin-right:10px;"></div>
+                      <input type="text" placeholder="Search staff" style="border:none;background:transparent;flex-grow:1;font-size:14px;"/>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:15px;">
+                      <div style="font-weight:bold;">12 Staff Members</div>
+                      <div style="background-color:#4D7A50;color:#F5ECD7;padding:5px 10px;border-radius:5px;font-size:12px;font-weight:bold;cursor:pointer;">
+                        + Add Staff
+                      </div>
+                    </div>
+                    <div class="staff-list">
+                      <div class="staff-card">
+                        <div class="staff-avatar">A</div>
+                        <div class="staff-info">
+                          <div class="staff-name">Ahmed Mohamed</div>
+                          <div class="staff-role">Server</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+                          <div class="staff-tips">AED 2,340</div>
+                          <div style="display:flex;align-items:center;font-size:12px;color:#6C757D;">
+                            <div style="width:12px;height:12px;background-color:#4D7A50;mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\'/%3E%3C/svg%3E');-webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\'/%3E%3C/svg%3E');mask-size:cover;-webkit-mask-size:cover;margin-right:3px;"></div>
+                            4.9
+                          </div>
+                        </div>
+                      </div>
+                      <div class="staff-card">
+                        <div class="staff-avatar">S</div>
+                        <div class="staff-info">
+                          <div class="staff-name">Sara Khan</div>
+                          <div class="staff-role">Hostess</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+                          <div class="staff-tips">AED 1,890</div>
+                          <div style="display:flex;align-items:center;font-size:12px;color:#6C757D;">
+                            <div style="width:12px;height:12px;background-color:#4D7A50;mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\'/%3E%3C/svg%3E');-webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\'/%3E%3C/svg%3E');mask-size:cover;-webkit-mask-size:cover;margin-right:3px;"></div>
+                            4.8
+                          </div>
+                        </div>
+                      </div>
+                      <div class="staff-card">
+                        <div class="staff-avatar">M</div>
+                        <div class="staff-info">
+                          <div class="staff-name">Michael Thomas</div>
+                          <div class="staff-role">Bartender</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+                          <div class="staff-tips">AED 1,650</div>
+                          <div style="display:flex;align-items:center;font-size:12px;color:#6C757D;">
+                            <div style="width:12px;height:12px;background-color:#4D7A50;mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\'/%3E%3C/svg%3E');-webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\'/%3E%3C/svg%3E');mask-size:cover;-webkit-mask-size:cover;margin-right:3px;"></div>
+                            4.7
+                          </div>
+                        </div>
+                      </div>
+                      <div class="staff-card">
+                        <div class="staff-avatar">F</div>
+                        <div class="staff-info">
+                          <div class="staff-name">Fatima Ali</div>
+                          <div class="staff-role">Housekeeper</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+                          <div class="staff-tips">AED 1,120</div>
+                          <div style="display:flex;align-items:center;font-size:12px;color:#6C757D;">
+                            <div style="width:12px;height:12px;background-color:#4D7A50;mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\'/%3E%3C/svg%3E');-webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\'/%3E%3C/svg%3E');mask-size:cover;-webkit-mask-size:cover;margin-right:3px;"></div>
+                            4.6
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Analytics -->
+                <div id="business-analytics" class="screen">
+                  <div class="header">Analytics</div>
+                  <div style="padding:15px;">
+                    <div style="background:white;border-radius:8px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                      <div style="font-weight:bold;margin-bottom:10px;">Monthly Tips</div>
+                      <div style="height:150px;background-color:#F8F9FA;border-radius:4px;padding:10px;display:flex;align-items:flex-end;">
+                        <div style="flex:1;height:60%;background-color:#4D7A50;margin:0 2px;border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1;height:80%;background-color:#4D7A50;margin:0 2px;border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1;height:50%;background-color:#4D7A50;margin:0 2px;border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1;height:90%;background-color:#4D7A50;margin:0 2px;border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1;height:100%;background-color:#4D7A50;margin:0 2px;border-radius:2px 2px 0 0;"></div>
+                        <div style="flex:1;height:75%;background-color:#4D7A50;margin:0 2px;border-radius:2px 2px 0 0;"></div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:#6C757D;">
+                        <div>Nov</div><div>Dec</div><div>Jan</div><div>Feb</div><div>Mar</div><div>Apr</div>
+                      </div>
+                    </div>
+                    <div style="background:white;border-radius:8px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                      <div style="font-weight:bold;margin-bottom:10px;">Customer Satisfaction</div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                        <div style="font-size:12px;color:#6C757D;">5★</div>
+                        <div style="flex-grow:1;background-color:#F8F9FA;height:8px;margin:0 10px;position:relative;border-radius:4px;overflow:hidden;">
+                          <div style="position:absolute;top:0;left:0;height:100%;width:70%;background-color:#4D7A50;border-radius:4px;"></div>
+                        </div>
+                        <div style="font-size:12px;color:#6C757D;">70%</div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                        <div style="font-size:12px;color:#6C757D;">4★</div>
+                        <div style="flex-grow:1;background-color:#F8F9FA;height:8px;margin:0 10px;position:relative;border-radius:4px;overflow:hidden;">
+                          <div style="position:absolute;top:0;left:0;height:100%;width:20%;background-color:#4D7A50;border-radius:4px;"></div>
+                        </div>
+                        <div style="font-size:12px;color:#6C757D;">20%</div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                        <div style="font-size:12px;color:#6C757D;">3★</div>
+                        <div style="flex-grow:1;background-color:#F8F9FA;height:8px;margin:0 10px;position:relative;border-radius:4px;overflow:hidden;">
+                          <div style="position:absolute;top:0;left:0;height:100%;width:7%;background-color:#4D7A50;border-radius:4px;"></div>
+                        </div>
+                        <div style="font-size:12px;color:#6C757D;">7%</div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                        <div style="font-size:12px;color:#6C757D;">2★</div>
+                        <div style="flex-grow:1;background-color:#F8F9FA;height:8px;margin:0 10px;position:relative;border-radius:4px;overflow:hidden;">
+                          <div style="position:absolute;top:0;left:0;height:100%;width:2%;background-color:#4D7A50;border-radius:4px;"></div>
+                        </div>
+                        <div style="font-size:12px;color:#6C757D;">2%</div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;">
+                        <div style="font-size:12px;color:#6C757D;">1★</div>
+                        <div style="flex-grow:1;background-color:#F8F9FA;height:8px;margin:0 10px;position:relative;border-radius:4px;overflow:hidden;">
+                          <div style="position:absolute;top:0;left:0;height:100%;width:1%;background-color:#4D7A50;border-radius:4px;"></div>
+                        </div>
+                        <div style="font-size:12px;color:#6C757D;">1%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Settings -->
+                <div id="business-settings" class="screen">
+                  <div class="header">Settings</div>
+                  <div style="padding:15px;">
+                    <div style="background-color:white;border-radius:8px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                      <div style="font-weight:bold;margin-bottom:15px;">Business Information</div>
+                      <div style="margin-bottom:15px;">
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:5px;">Business Name</div>
+                        <input type="text" value="Al Fanar Restaurant" style="width:100%;padding:10px;border-radius:4px;border:1px solid #E9ECEF;font-size:14px;" />
+                      </div>
+                      <div style="margin-bottom:15px;">
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:5px;">Business Category</div>
+                        <input type="text" value="Restaurant" style="width:100%;padding:10px;border-radius:4px;border:1px solid #E9ECEF;font-size:14px;" />
+                      </div>
+                      <div>
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:5px;">Location</div>
+                        <input type="text" value="Dubai Marina, Dubai, UAE" style="width:100%;padding:10px;border-radius:4px;border:1px solid #E9ECEF;font-size:14px;" />
+                      </div>
+                    </div>
+                    <div style="background-color:white;border-radius:8px;padding:15px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                      <div style="font-weight:bold;margin-bottom:15px;">Payment Settings</div>
+                      <div style="margin-bottom:15px;">
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:5px;">Bank Account</div>
+                        <input type="text" value="Emirates NBD - AE07 0260 0010 9876 5432 109" style="width:100%;padding:10px;border-radius:4px;border:1px solid #E9ECEF;font-size:14px;" />
+                      </div>
+                      <div>
+                        <div style="font-size:12px;color:#6C757D;margin-bottom:5px;">Service Fee</div>
+                        <div style="display:flex;align-items:center;">
+                          <input type="text" value="2.5" style="width:80px;padding:10px;border-radius:4px;border:1px solid #E9ECEF;font-size:14px;margin-right:10px;" />
+                          <div>% per transaction</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="background-color:#4D7A50;color:#F5ECD7;border-radius:8px;padding:15px;text-align:center;font-weight:bold;cursor:pointer;" onclick="alert('Settings saved successfully!')">
+                      Save Changes
+                    </div>
+                  </div>
+                </div>
+                <!-- Business Bottom Nav -->
+                <div class="bottom-nav">
+                  <div class="nav-item active" onclick="switchScreen('business-app','business-dashboard')">
+                    <div class="nav-icon dashboard-icon"></div><div>Dashboard</div>
+                  </div>
+                  <div class="nav-item" onclick="switchScreen('business-app','business-staff')">
+                    <div class="nav-icon staff-icon"></div><div>Staff</div>
+                  </div>
+                  <div class="nav-item" onclick="switchScreen('business-app','business-analytics')">
+                    <div class="nav-icon analytics-icon"></div><div>Analytics</div>
+                  </div>
+                  <div class="nav-item" onclick="switchScreen('business-app','business-settings')">
+                    <div class="nav-icon settings-icon"></div><div>Settings</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-info">
+            <div class="mockup-title">Business Dashboard</div>
+            <div class="mockup-description">
+              Overview of tipping performance and staff metrics for business owners
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker registered'))
+        .catch(err => console.error('SW registration failed:', err));
+    }
+
+    // LocalStorage helper
+    const storage = {
+      load(key, def) {
+        try {
+          return JSON.parse(localStorage.getItem(key)) || def;
+        } catch {
+          return def;
+        }
+      },
+      save(key, val) {
+        localStorage.setItem(key, JSON.stringify(val));
+      }
+    };
+
+    // Initial data
+    const worker = storage.load('workerProfile', {
+      name: 'Ahmed Mohamed',
+      role: 'Server at Al Fanar Restaurant',
+      email: 'ahmed.mohamed@example.com',
+      phone: '+971 50 123 4567',
+      joined: 'January 15, 2025',
+      bank: { account: 'Emirates NBD', iban: 'AE070260001012345678901' }
+    });
+    const stats = storage.load('workerStats', { today: 120, week: 780, balance: 1240 });
+    const history = storage.load('workerHistory', []);
+
+    window.onload = () => {
+      generateQRCode();
+      renderWorkerData();
+      renderHistory();
+      renderWallet();
+      attachListeners();
+    };
+
+    function generateQRCode() {
+      const container = document.getElementById('qrcode');
+      if (typeof QRCode === 'function') {
+        document.getElementById('fallback-qr').style.display = 'none';
+        new QRCode(container, {
+          text: `taqdeer://worker/${encodeURIComponent(worker.name)}`,
+          width: 180,
+          height: 180,
+          colorDark: '#4D7A50',
+          colorLight: '#F5ECD7',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+    }
+
+    function renderWorkerData() {
+      const nameEl = document.getElementById('worker-name');
+      if (nameEl) nameEl.textContent = worker.name;
+      const roleEl = document.getElementById('worker-role');
+      if (roleEl) roleEl.textContent = worker.role;
+      const vals = document.querySelectorAll('.worker-app .stat-card .stat-value');
+      if (vals.length >= 2) {
+        vals[0].textContent = `AED ${stats.today}`;
+        vals[1].textContent = `AED ${stats.week}`;
+      }
+    }
+
+    function renderHistory() {
+      const container = document.querySelector('#worker-history > div:nth-child(2)');
+      if (!container) return;
+      container.innerHTML = '';
+      history.forEach(entry => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background:white;border-radius:8px;padding:15px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);';
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <strong>${entry.customer}</strong>
+            <strong style="color:#3A5A3C;">+AED ${entry.amount}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;">
+            <span style="color:#6C757D;">${entry.date}</span>
+            <span style="color:#4D7A50;">${'★'.repeat(entry.rating)}</span>
+          </div>
+          ${entry.note ? `<div style="font-size:12px;color:#6C757D;margin-top:8px;font-style:italic;">"${entry.note}"</div>` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderWallet() {
+      const el = document.querySelector('#worker-wallet .summary-amount');
+      if (el) el.textContent = `AED ${stats.balance}`;
+    }
+
+    function attachListeners() {
+      const transferBtn = document.getElementById('transfer-button');
+      if (transferBtn) {
+        transferBtn.addEventListener('click', () => {
+          alert('Transfer initiated! Your funds will be transferred to your bank account within 24 hours.');
+          stats.balance = 0;
+          storage.save('workerStats', stats);
+          renderWallet();
+        });
+      }
+    }
+
+    function switchScreen(app, screenId) {
+      document.querySelectorAll(`.${app} .screen`).forEach(s => s.classList.remove('active'));
+      const tgt = document.getElementById(screenId);
+      if (tgt) tgt.classList.add('active');
+      document.querySelectorAll(`.${app} .nav-item`).forEach(item => {
+        item.classList.toggle('active', item.onclick.toString().includes(screenId));
+      });
+    }
+
+    // Customer flows
+    function selectAmount(amount) {
+      document.querySelectorAll('.customer-app .amount-button').forEach(btn => {
+        btn.classList.toggle('selected', parseInt(btn.textContent) === amount);
+      });
+      document.getElementById('custom-amount-input').value = amount;
+    }
+    function updateAmount(value) {
+      document.querySelectorAll('.customer-app .amount-button').forEach(btn => {
+        btn.classList.toggle('selected', parseInt(btn.textContent) === parseInt(value));
+      });
+    }
+    function proceedToPayment() {
+      const amt = parseInt(document.getElementById('custom-amount-input').value);
+      const note = document.getElementById('note-input').value.trim();
+      const newEntry = {
+        customer: `Customer #${Math.floor(1000+Math.random()*9000)}`,
+        amount: amt,
+        date: new Date().toLocaleString('en-GB',{month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+        rating: 0,
+        note: note
+      };
+      history.unshift(newEntry);
+      stats.today += amt;
+      stats.week  += amt;
+      stats.balance += amt;
+      storage.save('workerHistory', history);
+      storage.save('workerStats', stats);
+
+      const msg = document.getElementById('tip-confirmation-message');
+      if (msg) msg.textContent = `Your tip of AED ${amt} has been sent to ${worker.name}`;
+      switchScreen('customer-app','customer-confirmation');
+      renderWorkerData();
+    }
+    function rateStar(r) {
+      document.querySelectorAll('.star').forEach((s,i)=>{
+        s.classList.toggle('active', i<r);
+      });
+      if (history.length) {
+        history[0].rating = r;
+        storage.save('workerHistory', history);
+      }
+    }
+    function finishRating() {
+      switchScreen('customer-app','customer-tip');
+      alert('Thank you for your feedback!');
+    }
+  </script>
+</body>
+</html>
